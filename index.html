@@ -542,12 +542,6 @@
             opacity: 0;
             transition: opacity 0.2s;
         }
-        /* We'll use a different approach: highlight in a pre behind the textarea */
-
-        /* Let me use a simpler approach - textarea only with nice styling */
-        .code-wrapper textarea.code-input {
-            /* Keep it clean */
-        }
 
         /* Editor footer */
         .editor-footer {
@@ -976,25 +970,28 @@
         }
 
         /* ===== FULLSCREEN OVERRIDE ===== */
-        .preview-frame-wrapper.fullscreen {
-            position: fixed;
-            inset: 0;
-            z-index: 100;
+        #previewWrapper:fullscreen {
             background: var(--bg-primary);
-            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .preview-frame-wrapper.fullscreen .frame-container {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
+
+        #previewWrapper:fullscreen #frameContainer {
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
             border-radius: 0;
         }
-        .preview-frame-wrapper.fullscreen .frame-container iframe {
-            border-radius: 0;
+
+        #previewWrapper:fullscreen iframe {
+            width: 100%;
+            height: 100%;
         }
-        .preview-frame-wrapper.fullscreen .frame-container .device-mockup {
-            display: none !important;
+
+        #previewWrapper:fullscreen .device-mockup {
+            display: none;
         }
 
         /* ===== TRANSITIONS ===== */
@@ -1082,6 +1079,360 @@
             100% {
                 transform: rotate(90deg);
             }
+        }
+
+        /* ===== CUSTOM CONFIRMATION MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 120px rgba(99, 102, 241, 0.1);
+            transform: scale(0.8) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.8rem;
+            animation: modalIconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+        }
+
+        .modal-icon.warning {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15));
+            color: #f59e0b;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+        }
+
+        .modal-icon.danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+            color: #ef4444;
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.2);
+        }
+
+        .modal-icon.info {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+            color: #6366f1;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+        }
+
+        .modal-icon.success {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15));
+            color: #22c55e;
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.2);
+        }
+
+        @keyframes modalIconPop {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            text-align: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .modal-message {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-align: center;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 0.7rem 1.8rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-btn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .modal-btn-cancel {
+            background: rgba(30, 41, 59, 0.8);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-btn-cancel:hover {
+            background: rgba(51, 65, 85, 0.8);
+            color: #f1f5f9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal shake animation for denied actions */
+        @keyframes modalShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+        }
+
+        .modal-container.shake {
+            animation: modalShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+        }
+
+        /* Ripple effect */
+        .modal-btn .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Refresh animation */
+        .refreshing i {
+            animation: refreshSpin 0.7s linear;
+        }
+
+        @keyframes refreshSpin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Preview refresh animation */
+        .preview-refreshing {
+            animation: previewRefresh .45s ease;
+        }
+
+        @keyframes previewRefresh {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+
+            50% {
+                opacity: .4;
+                transform: scale(.985);
+                filter: blur(2px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        /* ===========================
+        Preview Loading Overlay
+        =========================== */
+
+        .preview-loading{
+            position:absolute;
+            inset:0;
+            background:rgba(15,23,42,.9);
+            backdrop-filter:blur(10px);
+
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:18px;
+
+            opacity:0;
+            visibility:hidden;
+
+            transition:.35s;
+
+            z-index:100;
+        }
+
+        .preview-loading.show{
+            opacity:1;
+            visibility:visible;
+        }
+
+        .preview-loading .loader{
+
+            width:70px;
+            height:70px;
+
+            border-radius:50%;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            background:linear-gradient(135deg,#6366f1,#8b5cf6);
+
+            box-shadow:
+                0 0 35px rgba(99,102,241,.35);
+
+        }
+
+        .preview-loading .loader i{
+
+            color:white;
+
+            font-size:28px;
+
+            animation:spinLoader .9s linear infinite;
+
+        }
+
+        @keyframes spinLoader{
+
+            from{
+                transform:rotate(0deg);
+            }
+
+            to{
+                transform:rotate(360deg);
+            }
+
+        }
+
+        .preview-loading h3{
+
+            color:white;
+
+            font-size:1.15rem;
+
+            font-weight:700;
+
+        }
+
+        .preview-loading p{
+
+            color:#94a3b8;
+
+            font-size:.9rem;
+
+        }
+
+        .frame-container.loaded{
+
+            animation:previewFade .45s ease;
+
+        }
+
+        @keyframes previewFade{
+
+            from{
+
+                opacity:.4;
+                transform:scale(.985);
+
+            }
+
+            to{
+
+                opacity:1;
+                transform:scale(1);
+
+            }
+
+        }
+
+        /* Refresh button animation */
+
+        .refreshing i{
+
+            animation:spinRefresh .7s linear;
+
+        }
+
+        @keyframes spinRefresh{
+
+            from{
+
+                transform:rotate(0deg);
+
+            }
+
+            to{
+
+                transform:rotate(360deg);
+
+            }
+
         }
     </style>
 </head>
@@ -1287,6 +1638,15 @@
         <div class="preview-body">
             <div class="preview-frame-wrapper" id="previewWrapper">
                 <div class="frame-container" id="frameContainer">
+                    <div class="preview-loading" id="previewLoading">
+                        <div class="loader">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+
+                        <h3>Refreshing Preview...</h3>
+
+                        <p>Please wait</p>
+                    </div>
                     <div class="device-mockup mobile-notch"></div>
                     <iframe id="previewFrame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
                 </div>
@@ -1318,7 +1678,26 @@
             </div>
         </div>
     </div>
-
+    <!-- ============================================================
+    CUSTOM CONFIRMATION MODAL
+    ============================================================ -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-container" id="modalContainer">
+            <div class="modal-icon" id="modalIcon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h3 class="modal-title" id="modalTitle">Confirm Action</h3>
+            <p class="modal-message" id="modalMessage">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" id="modalCancel">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="modal-btn modal-btn-confirm" id="modalConfirm">
+                    <i class="fas fa-check"></i> Confirm
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ============================================================
@@ -1346,6 +1725,7 @@ JAVASCRIPT
         const saveLabel = document.getElementById('saveLabel');
 
         const previewFrame = document.getElementById('previewFrame');
+        const previewLoading = document.getElementById("previewLoading");
         const frameContainer = document.getElementById('frameContainer');
         const widthDisplay = document.getElementById('widthDisplay');
         const previewWrapper = document.getElementById('previewWrapper');
@@ -1365,7 +1745,6 @@ JAVASCRIPT
         let currentDeviceHeight = 'auto';
         let zoomLevel = 1;
         let isRotated = false;
-        let isFullscreen = false;
         let saveTimeout = null;
         const STORAGE_KEY = 'html_previewer_code';
 
@@ -1383,20 +1762,36 @@ JAVASCRIPT
         });
 
         btnHomeEditor.addEventListener('click', () => {
-            if (confirm('Go back to Home? Your code will be saved.')) {
-                saveCode();
-                showScreen(screenHome);
-            }
+            showConfirmModal({
+                title: 'Go Home?',
+                message: 'Your code will be saved before returning to Home.',
+                iconType: 'info',
+                iconClass: 'fa-home',
+                confirmText: 'Go Home',
+                cancelText: 'Stay',
+                onConfirm: () => {
+                    saveCode();
+                    showScreen(screenHome);
+                }
+            });
         });
 
         btnClear.addEventListener('click', () => {
-            if (confirm('Clear all code?')) {
-                codeInput.value = '';
-                updateLineNumbers();
-                updateCharCount();
-                saveCode();
-                showToast('Editor cleared', 'warning');
-            }
+            showConfirmModal({
+                title: 'Clear Editor?',
+                message: 'This will remove all your HTML code.',
+                iconType: 'danger',
+                iconClass: 'fa-trash',
+                confirmText: 'Clear',
+                cancelText: 'Cancel',
+                onConfirm: () => {
+                    codeInput.value = '';
+                    updateLineNumbers();
+                    updateCharCount();
+                    saveCode();
+                    showToast('Editor cleared', 'warning');
+                }
+            });
         });
 
         btnPreview.addEventListener('click', () => {
@@ -1408,8 +1803,6 @@ JAVASCRIPT
             applyDeviceWidth('100%');
             zoomLevel = 1;
             isRotated = false;
-            isFullscreen = false;
-            previewWrapper.classList.remove('fullscreen');
             updateZoom();
         });
 
@@ -1470,12 +1863,30 @@ JAVASCRIPT
         }
 
         // ===== PREVIEW =====
-        function updatePreview() {
+        function updatePreview(showMessage = true) {
+
             const html = codeInput.value;
+
             const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+
             doc.open();
             doc.write(html);
             doc.close();
+
+            requestAnimationFrame(() => {
+
+                previewLoading.classList.remove("show");
+
+                frameContainer.classList.add("loaded");
+
+                btnRefreshPreview.classList.remove("refreshing");
+
+                if (showMessage) {
+                    showToast("Preview refreshed");
+                }
+
+            });
+
         }
 
         // ===== DEVICE SIZING =====
@@ -1540,8 +1951,6 @@ JAVASCRIPT
                 zoomLevel = 1;
                 updateZoom();
                 isRotated = false;
-                isFullscreen = false;
-                previewWrapper.classList.remove('fullscreen');
                 // Reapply with correct height
                 setTimeout(() => applyDeviceWidth(width), 50);
             });
@@ -1599,39 +2008,73 @@ JAVASCRIPT
         });
 
         // ===== FULLSCREEN =====
-        btnFullscreen.addEventListener('click', () => {
-            isFullscreen = !isFullscreen;
-            if (isFullscreen) {
-                previewWrapper.classList.add('fullscreen');
-                btnFullscreen.innerHTML = '<i class="fas fa-compress"></i> Exit';
-                // Force full width
-                const container = frameContainer;
-                container.style.width = '100%';
-                container.style.height = '100%';
-                container.style.maxWidth = '100%';
-                container.style.maxHeight = '100%';
-                container.style.borderRadius = '0';
-                container.classList.remove('is-mobile', 'is-tablet');
-                widthDisplay.textContent = 'Fullscreen';
-                zoomLevel = 1;
-                updateZoom();
+        btnFullscreen.addEventListener('click', async () => {
+
+            try {
+
+                if (!document.fullscreenElement) {
+
+                    await previewWrapper.requestFullscreen();
+
+                    btnFullscreen.innerHTML =
+                        '<i class="fas fa-compress"></i> Exit';
+
+                } else {
+
+                    await document.exitFullscreen();
+
+                }
+
+            } catch (err) {
+                console.error(err);
+            }
+
+        });
+
+        // Detect Enter/Exit Fullscreen
+        document.addEventListener("fullscreenchange", () => {
+
+            if (document.fullscreenElement) {
+
+                btnFullscreen.innerHTML =
+                    '<i class="fas fa-compress"></i> Exit';
+
+                widthDisplay.textContent = "Fullscreen";
+
             } else {
-                previewWrapper.classList.remove('fullscreen');
-                btnFullscreen.innerHTML = '<i class="fas fa-expand"></i> Fullscreen';
-                // Restore device
-                const active = document.querySelector('.device-btn.active');
+
+                btnFullscreen.innerHTML =
+                    '<i class="fas fa-expand"></i> Fullscreen';
+
+                const active = document.querySelector(".device-btn.active");
+
                 if (active) {
                     applyDeviceWidth(active.dataset.width);
                 } else {
-                    applyDeviceWidth('100%');
+                    applyDeviceWidth("100%");
                 }
             }
+
         });
 
         // ===== REFRESH =====
-        btnRefreshPreview.addEventListener('click', () => {
-            updatePreview();
-            showToast('Preview refreshed', '');
+        btnRefreshPreview.addEventListener("click", () => {
+
+            if(btnRefreshPreview.classList.contains("refreshing"))
+                return;
+
+            btnRefreshPreview.classList.add("refreshing");
+
+            previewLoading.classList.add("show");
+
+            frameContainer.classList.remove("loaded");
+
+            setTimeout(()=>{
+
+                updatePreview();
+
+            },300);
+
         });
 
         // ===== TOAST =====
@@ -1658,29 +2101,146 @@ JAVASCRIPT
                 }
             }
             // Escape → exit fullscreen
-            if (e.key === 'Escape' && isFullscreen) {
-                btnFullscreen.click();
+            if (e.key === "Escape" && document.fullscreenElement) {
+                document.exitFullscreen();
             }
         });
+
+        // ===== CUSTOM CONFIRMATION MODAL =====
+        function showConfirmModal(options = {}) {
+            const {
+                title = 'Confirm Action',
+                message = 'Are you sure?',
+                iconType = 'warning', // warning, danger, info, success
+                iconClass = 'fa-question-circle',
+                confirmText = 'Confirm',
+                cancelText = 'Cancel',
+                onConfirm = () => {},
+                onCancel = () => {},
+                shakeOnCancel = false
+            } = options;
+
+            const overlay = document.getElementById('confirmModal');
+            const container = document.getElementById('modalContainer');
+            const iconEl = document.getElementById('modalIcon');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('modalConfirm');
+            const cancelBtn = document.getElementById('modalCancel');
+
+            // Update modal content
+            iconEl.className = `modal-icon ${iconType}`;
+            iconEl.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            confirmBtn.innerHTML = `<i class="fas fa-check"></i> ${confirmText}`;
+            cancelBtn.innerHTML = `<i class="fas fa-times"></i> ${cancelText}`;
+
+            // Show modal with animation
+            overlay.classList.add('active');
+
+            // Handle confirm
+            const handleConfirm = () => {
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    onConfirm();
+                    cleanup();
+                }, 300);
+            };
+
+            // Handle cancel
+            const handleCancel = () => {
+                if (shakeOnCancel) {
+                    container.classList.add('shake');
+                    setTimeout(() => container.classList.remove('shake'), 500);
+                }
+                overlay.classList.remove('active');
+                setTimeout(() => {
+                    onCancel();
+                    cleanup();
+                }, 300);
+            };
+
+            // Handle escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape' && overlay.classList.contains('active')) {
+                    handleCancel();
+                }
+            };
+
+            // Cleanup event listeners
+            const cleanup = () => {
+                confirmBtn.removeEventListener('click', handleConfirm);
+                cancelBtn.removeEventListener('click', handleCancel);
+                document.removeEventListener('keydown', handleEscape);
+                overlay.removeEventListener('click', handleOverlayClick);
+            };
+
+            // Add event listeners
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+            document.addEventListener('keydown', handleEscape);
+
+            // Close on overlay click (optional)
+            const handleOverlayClick = (e) => {
+                if (e.target === overlay) {
+                    handleCancel();
+                }
+            };
+
+            overlay.addEventListener('click', handleOverlayClick);
+        }
+
+        // Ripple effect for buttons
+        function addRippleEffect(button) {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = `${size}px`;
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                
+                button.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        }
+        addRippleEffect(document.getElementById('modalConfirm'));
+        addRippleEffect(document.getElementById('modalCancel'));
 
         // ===== INIT =====
         loadCode();
         updateLineNumbers();
         updateCharCount();
         // Preload preview
-        setTimeout(updatePreview, 300);
+        setTimeout(() => updatePreview(false), 300);
 
         // Handle window resize for responsive preview
         let resizeTimer;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimer);
+
             resizeTimer = setTimeout(() => {
-                if (screenPreview.classList.contains('active') && !isFullscreen) {
+
+                if (
+                    screenPreview.classList.contains('active') &&
+                    !document.fullscreenElement
+                ) {
+
                     const active = document.querySelector('.device-btn.active');
+
                     if (active) {
                         applyDeviceWidth(active.dataset.width);
                     }
+
                 }
+
             }, 300);
         });
 
