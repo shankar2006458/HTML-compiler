@@ -735,43 +735,7 @@
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
             z-index: 2;
         }
-        /* Mobile notch */
-        .frame-container .device-mockup.mobile-notch {
-            display: none;
-        }
-        .frame-container.is-mobile .device-mockup.mobile-notch {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 24px;
-            background: #0f172a;
-            border-radius: 0 0 16px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-top: none;
-            z-index: 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        .frame-container.is-mobile .device-mockup.mobile-notch::before {
-            content: '';
-            width: 40px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-        }
-        .frame-container.is-mobile .device-mockup.mobile-notch::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
+
         /* Tablet bezel */
         .frame-container.is-tablet .device-mockup {
             border-width: 4px;
@@ -1069,16 +1033,29 @@
         }
 
         /* ===== ROTATE ANIMATION ===== */
-        .rotating {
-            animation: rotate-device 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        .rotating{
+            animation: rotatePreview .55s cubic-bezier(.22,.61,.36,1);
+            transform-origin:center;
         }
-        @keyframes rotate-device {
-            0% {
-                transform: rotate(0deg);
+
+        @keyframes rotatePreview{
+
+            0%{
+                transform:scale(1) rotate(0deg);
             }
-            100% {
-                transform: rotate(90deg);
+
+            25%{
+                transform:scale(.96) rotate(-8deg);
             }
+
+            70%{
+                transform:scale(.96) rotate(98deg);
+            }
+
+            100%{
+                transform:scale(1) rotate(90deg);
+            }
+
         }
 
         /* ===== CUSTOM CONFIRMATION MODAL ===== */
@@ -1434,6 +1411,103 @@
             }
 
         }
+        .rotate-btn-spin i{
+            animation:rotateBtn .55s ease;
+        }
+
+        @keyframes rotateBtn{
+            from{
+                transform:rotate(0deg);
+            }
+            to{
+                transform:rotate(180deg);
+            }
+        }
+        /* ==========================
+        DESKTOP/TABLET ONLY
+        ========================== */
+
+        #mobileBlock{
+            position:fixed;
+            inset:0;
+            z-index:999999;
+
+            display:none;
+
+            justify-content:center;
+            align-items:center;
+
+            background:#0f172a;
+
+            padding:24px;
+        }
+
+        .mobile-card{
+
+            max-width:420px;
+            width:100%;
+
+            padding:40px 30px;
+
+            border-radius:24px;
+
+            text-align:center;
+
+            background:rgba(30,41,59,.75);
+
+            backdrop-filter:blur(18px);
+
+            border:1px solid rgba(255,255,255,.08);
+
+            box-shadow:0 20px 60px rgba(0,0,0,.45);
+        }
+
+        .mobile-card i{
+
+            font-size:60px;
+
+            margin-bottom:20px;
+
+            background:linear-gradient(135deg,#6366f1,#8b5cf6);
+
+            -webkit-background-clip:text;
+            -webkit-text-fill-color:transparent;
+
+        }
+
+        .mobile-card h1{
+
+            font-size:2rem;
+
+            color:#fff;
+
+            margin-bottom:12px;
+        }
+
+        .mobile-card p{
+
+            color:#94a3b8;
+
+            line-height:1.7;
+        }
+
+        /* Hide website on phones */
+
+        @media screen and (max-width: 767px) {
+
+            body {
+                overflow: hidden !important;
+            }
+
+            #app {
+                display: none !important;
+            }
+
+            #mobileBlock {
+                display: flex !important;
+            }
+
+        }
     </style>
 </head>
 <body>
@@ -1699,7 +1773,19 @@
         </div>
     </div>
 </div>
+    <!-- Mobile Block Screen -->
+    <div id="mobileBlock">
+        <div class="mobile-card">
+            <i class="fas fa-desktop"></i>
 
+            <h1>Desktop Only</h1>
+
+            <p>
+                This application is optimized for desktop and tablet devices.
+                Please open it on a larger screen.
+            </p>
+        </div>
+    </div>
 <!-- ============================================================
 JAVASCRIPT
 ============================================================ -->
@@ -1743,7 +1829,7 @@ JAVASCRIPT
         // ===== STATE =====
         let currentDeviceWidth = '100%';
         let currentDeviceHeight = 'auto';
-        let zoomLevel = 1;
+        let zoomLevel = 0.9;
         let isRotated = false;
         let saveTimeout = null;
         const STORAGE_KEY = 'html_previewer_code';
@@ -1801,7 +1887,7 @@ JAVASCRIPT
             // Reset device selection
             setActiveDevice(document.querySelector('.device-btn[data-width="100%"]'));
             applyDeviceWidth('100%');
-            zoomLevel = 1;
+            zoomLevel = 0.9;
             isRotated = false;
             updateZoom();
         });
@@ -1892,50 +1978,98 @@ JAVASCRIPT
         // ===== DEVICE SIZING =====
         function applyDeviceWidth(width) {
             currentDeviceWidth = width;
+
             const container = frameContainer;
-            const wrapper = previewWrapper;
 
-            if (width === '100%') {
-                container.style.width = '100%';
-                container.style.height = '100%';
-                container.style.maxWidth = '100%';
-                container.style.maxHeight = '100%';
-                container.style.borderRadius = '0';
-                container.classList.remove('is-mobile', 'is-tablet');
-                widthDisplay.textContent = '100% · Full Width';
-            } else {
-                const w = parseInt(width);
-                container.style.width = width;
-                container.style.height = 'auto';
-                container.style.maxWidth = '90vw';
-                container.style.maxHeight = '85vh';
-                container.style.borderRadius = 'var(--radius-card)';
+            if (width === "100%") {
 
-                // Aspect ratio based on device
-                const isMobile = w <= 420;
-                const isTablet = w > 420 && w <= 820;
+                container.style.width = "100%";
+                container.style.height = "100%";
+                container.style.maxWidth = "100%";
+                container.style.maxHeight = "100%";
+                container.style.borderRadius = "0";
 
-                container.classList.toggle('is-mobile', isMobile);
-                container.classList.toggle('is-tablet', isTablet);
+                container.classList.remove("is-mobile", "is-tablet");
 
-                // Height: 16:9 for desktop, 9:16 for mobile rotated
-                let ratio = 16 / 9;
-                if (isMobile) ratio = 19.5 / 9;
-                else if (isTablet) ratio = 4 / 3;
+                widthDisplay.textContent = "100% · Full Width";
 
-                if (isRotated && (isMobile || isTablet)) {
-                    ratio = 9 / 16;
-                }
-
-                const height = parseInt(w / ratio);
-                container.style.height = height + 'px';
-                container.style.maxHeight = '85vh';
-
-                widthDisplay.textContent = `${width} · ${isMobile ? 'Mobile' : isTablet ? 'Tablet' : 'Desktop'}`;
+                updatePreview();
+                return;
             }
 
-            // Re-trigger iframe refresh
-            updatePreview();
+            const w = parseInt(width);
+
+            const isMobile = w <= 420;
+            const isTablet = w > 420 && w <= 820;
+            const isLaptop = w > 820 && w <= 1200;
+
+            container.classList.toggle("is-mobile", isMobile);
+            container.classList.toggle("is-tablet", isTablet);
+
+            container.style.maxWidth = "90vw";
+            container.style.maxHeight = "92vh";
+            container.style.borderRadius = "var(--radius-card)";
+
+            // ---------- Mobile ----------
+            if (isMobile) {
+
+                if (isRotated) {
+
+                    container.style.width = Math.round(w * 19.5 / 9) + "px";
+                    container.style.height = w + "px";
+
+                } else {
+
+                    container.style.width = w + "px";
+                    container.style.height = Math.round(w * 19.5 / 9) + "px";
+
+                }
+
+            }
+
+            // ---------- Tablet ----------
+            else if (isTablet) {
+
+                if (isRotated) {
+
+                    container.style.width = Math.round(w * 4 / 3) + "px";
+                    container.style.height = w + "px";
+
+                } else {
+
+                    container.style.width = w + "px";
+                    container.style.height = Math.round(w * 4 / 3) + "px";
+
+                }
+
+            }
+
+            // ---------- Laptop ----------
+            else if (isLaptop) {
+
+                container.style.width = w + "px";
+                container.style.height = Math.round(w * 9 / 16) + "px";
+
+            }
+
+            // ---------- Desktop ----------
+            else {
+
+                container.style.width = w + "px";
+                container.style.height = Math.round(w * 9 / 16) + "px";
+
+            }
+
+            const deviceName =
+                isMobile ? "Mobile" :
+                isTablet ? "Tablet" :
+                isLaptop ? "Laptop" :
+                "Desktop";
+
+            widthDisplay.textContent = `${container.style.width} · ${deviceName}`;
+
+            updateZoom();
+            updatePreview(false);
         }
 
         function setActiveDevice(btn) {
@@ -1946,13 +2080,22 @@ JAVASCRIPT
         deviceBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const width = btn.dataset.width;
+
                 setActiveDevice(btn);
-                applyDeviceWidth(width);
-                zoomLevel = 1;
-                updateZoom();
+
                 isRotated = false;
-                // Reapply with correct height
-                setTimeout(() => applyDeviceWidth(width), 50);
+
+                // Always keep default zoom
+                zoomLevel = 0.9;
+
+                applyDeviceWidth(width);
+
+                updateZoom();
+
+                setTimeout(() => {
+                    applyDeviceWidth(width);
+                    updateZoom(); // keep 90% after resize
+                }, 50);
             });
         });
 
@@ -1967,14 +2110,27 @@ JAVASCRIPT
                 const isTablet = w > 420 && w <= 820;
                 if (isMobile || isTablet) {
                     // Swap width/height ratio
-                    const container = frameContainer;
-                    const currentH = container.offsetHeight;
-                    const currentW = container.offsetWidth;
+                    const container = previewWrapper;
                     // Animate
-                    container.classList.add('rotating');
-                    setTimeout(() => container.classList.remove('rotating'), 600);
-                    // Re-apply with rotated ratio
-                    applyDeviceWidth(currentWidth);
+                    container.classList.add("rotating");
+                    
+                    btnRotate.classList.add("rotate-btn-spin");
+
+                    setTimeout(() => {
+                        btnRotate.classList.remove("rotate-btn-spin");
+                    }, 550);
+
+                    setTimeout(() => {
+
+                        applyDeviceWidth(currentWidth);
+
+                    }, 250);
+
+                    setTimeout(() => {
+
+                        container.classList.remove("rotating");
+
+                    }, 550);
                 } else {
                     showToast('Rotate only available for Mobile & Tablet', 'warning');
                     isRotated = false;
@@ -2213,6 +2369,7 @@ JAVASCRIPT
         }
         addRippleEffect(document.getElementById('modalConfirm'));
         addRippleEffect(document.getElementById('modalCancel'));
+
 
         // ===== INIT =====
         loadCode();
